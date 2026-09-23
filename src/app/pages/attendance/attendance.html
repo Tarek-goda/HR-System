@@ -1,0 +1,54 @@
+<div class="space-y-6">
+  <!-- Top Bar -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-black text-gray-800 font-mono">Attendance</h1>
+      <p class="text-xs text-gray-500 font-mono">Real-time workforce activity and scheduling.</p>
+    </div>
+    <button class="px-4 py-2 bg-[#0052cc] text-white font-mono text-xs font-bold rounded-xl shadow-md">Apply for Leave</button>
+  </div>
+
+  <!-- Metrics Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="p-5 bg-[#e6e6e6] rounded-2xl shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff]">
+      <p class="text-xs text-gray-500 font-mono">Average Work Hours</p>
+      <h3 class="text-xl font-bold font-mono text-gray-800 mt-1">8.4 hrs / day</h3>
+    </div>
+    <div class="p-5 bg-[#e6e6e6] rounded-2xl shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff]">
+      <p class="text-xs text-gray-500 font-mono">Late Check-ins</p>
+      <h3 class="text-xl font-bold font-mono text-amber-600 mt-1">12% this week</h3>
+    </div>
+    <div class="p-5 bg-[#e6e6e6] rounded-2xl shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff]">
+      <p class="text-xs text-gray-500 font-mono">Pending Leave Requests</p>
+      <h3 class="text-xl font-bold font-mono text-rose-600 mt-1">08 active</h3>
+    </div>
+  </div>
+
+  <!-- Detailed Table -->
+  <div class="p-6 bg-[#e6e6e6] rounded-2xl shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff] space-y-4">
+    <h3 class="font-bold text-gray-800 font-mono">Detailed Attendance Log</h3>
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="text-xs text-gray-500 font-mono border-b border-gray-300/40">
+          <th class="py-3">Employee</th>
+          <th class="py-3">Department</th>
+          <th class="py-3">Status</th>
+          <th class="py-3">Clock In</th>
+          <th class="py-3">Clock Out</th>
+        </tr>
+      </thead>
+      <tbody class="text-xs font-mono text-gray-700">
+        <tr class="border-b border-gray-300/20">
+          <td class="py-3 flex items-center gap-2">
+            <img src="https://i.pravatar.cc/100?img=11" class="w-6 h-6 rounded-full" />
+            Alex Rivera
+          </td>
+          <td class="py-3">Engineering</td>
+          <td class="py-3"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">On Time</span></td>
+          <td class="py-3">08:30 AM</td>
+          <td class="py-3">-- : --</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

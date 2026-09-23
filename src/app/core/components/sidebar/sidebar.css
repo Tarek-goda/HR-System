@@ -1,0 +1,5 @@
+@reference "../../../../styles.css"; /* عدل المسار ليوصل لملف styles.css الرئيسي بتاع المشروع */
+
+.nav-item {
+  @apply flex items-center gap-4 px-4 py-3 rounded-2xl text-gray-600 font-medium text-sm transition-all duration-200 cursor-pointer font-mono;
+}

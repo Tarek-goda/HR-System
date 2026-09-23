@@ -1,0 +1,36 @@
+<div class="space-y-6">
+  <!-- Title & Actions Bar -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-black text-gray-800 font-mono">Employee Directory</h1>
+      <p class="text-xs text-gray-500 font-mono mt-1">Manage workforce across all global departments.</p>
+    </div>
+    <div class="flex gap-4">
+      <button class="px-4 py-2 bg-[#e6e6e6] text-gray-700 font-mono text-xs font-bold rounded-xl shadow-[4px_4px_8px_#c5c5c5,-4px_-4px_8px_#ffffff]">Filters</button>
+    </div>
+  </div>
+
+  <!-- Employee Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Card 1 -->
+    <div class="p-6 bg-[#e6e6e6] rounded-2xl shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff] text-center relative flex flex-col items-center">
+      <div class="relative mb-3">
+        <img src="https://i.pravatar.cc/100?img=33" class="w-20 h-20 rounded-full object-cover border-2 border-gray-300" />
+        <span class="w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#e6e6e6] absolute bottom-0 right-0"></span>
+      </div>
+      <h3 class="font-bold text-gray-800 font-mono">Tarek M.</h3>
+      <p class="text-xs text-gray-500 font-mono mb-3">Lead Designer</p>
+      <span class="px-3 py-1 rounded-full text-[10px] font-mono bg-blue-100 text-[#0052cc] mb-6">PRODUCT</span>
+      <div class="flex gap-2 w-full">
+        <button class="flex-1 py-2 text-xs font-mono bg-[#e6e6e6] text-gray-700 rounded-xl shadow-[inset_2px_2px_5px_#c5c5c5,inset_-2px_-2px_5px_#ffffff]">Message</button>
+        <button class="flex-1 py-2 text-xs font-mono bg-[#e6e6e6] text-gray-700 rounded-xl shadow-[inset_2px_2px_5px_#c5c5c5,inset_-2px_-2px_5px_#ffffff]">Profile</button>
+      </div>
+    </div>
+    
+    <!-- Placeholder Card for Add Member -->
+    <div class="p-6 bg-[#e6e6e6] rounded-2xl shadow-[inset_4px_4px_8px_#c5c5c5,inset_-4px_-4px_8px_#ffffff] border-2 border-dashed border-gray-300 flex flex-col items-center justify-center min-h-[260px] cursor-pointer">
+      <div class="w-12 h-12 rounded-full bg-[#e6e6e6] shadow-[4px_4px_8px_#c5c5c5,-4px_-4px_8px_#ffffff] flex items-center justify-center text-[#0052cc] mb-2">+</div>
+      <p class="text-xs font-mono text-gray-500">Add Member</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<div
+  class="bg-[#e6e6e6] p-8 rounded-3xl shadow-[8px_8px_16px_#c5c5c5,-8px_-8px_16px_#ffffff] max-w-2xl mx-auto border-t-4 border-blue-600"
+>
+  <div class="flex items-center gap-3 mb-6 text-gray-800 font-bold text-xl tracking-wide">
+    <span>Employment Structure</span>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onNext()" class="space-y-5 font-mono text-sm">
+    <div>
+      <label class="block text-gray-600 mb-2 font-bold">Job Title</label>
+      <input
+        type="text"
+        formControlName="jobTitle"
+        placeholder="e.g., Senior Angular Developer"
+        class="w-full bg-[#f0f0f0] text-gray-700 pl-4 pr-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-gray-600 mb-2 font-bold">Department</label>
+        <select
+          formControlName="department"
+          class="w-full bg-[#f0f0f0] text-gray-700 pl-4 pr-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+        >
+          <option value="">{{ isLoadingDepartments ? 'Loading...' : 'Select Department' }}</option>
+          @for (dept of departments; track dept.id) {
+            <option [value]="dept.id">{{ dept.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-600 mb-2 font-bold">System Role</label>
+        <select
+          formControlName="systemRole"
+          class="w-full bg-[#f0f0f0] text-gray-700 pl-4 pr-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+        >
+          <option value="employee">Employee</option>
+          <option value="hr_specialist">HR Specialist</option>
+          <option value="hr_manager">HR Manager</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-gray-600 mb-2 font-bold">Joining Date</label>
+        <input
+          type="date"
+          formControlName="hireDate"
+          class="w-full bg-[#f0f0f0] text-gray-700 pl-4 pr-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none focus:ring-2 focus:ring-blue-500 [color-scheme:light]"
+        />
+      </div>
+      <div>
+        <label class="block text-gray-600 mb-2 font-bold">Monthly Salary ($)</label>
+        <input
+          type="number"
+          formControlName="salary"
+          placeholder="5000"
+          class="w-full bg-[#f0f0f0] text-gray-700 pl-4 pr-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    </div>
+
+    <div class="pt-4 flex justify-between">
+      <button
+        type="button"
+        (click)="onBack()"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-6 py-3 rounded-xl shadow-[4px_4px_8px_#c5c5c5,-4px_-4px_8px_#ffffff] transition-all"
+      >
+        Back
+      </button>
+      <button
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-[4px_4px_8px_#c5c5c5,-4px_-4px_8px_#ffffff] flex items-center gap-2 transition-all"
+      >
+        <span>Next: Credentials</span>
+      </button>
+    </div>
+  </form>
+</div>

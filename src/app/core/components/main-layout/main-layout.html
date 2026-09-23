@@ -1,0 +1,17 @@
+<!-- src/app/core/components/main-layout/main-layout.html -->
+<div class="flex h-screen bg-[#e6e6e6] overflow-hidden font-sans">
+  <!-- Sidebar -->
+  <app-sidebar class="shrink-0"></app-sidebar>
+
+  <!-- Main Content Area -->
+  <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
+    <div class="flex items-center justify-between">
+      <app-header class="flex-1"></app-header>
+      <app-add-employee-button class="mr-4"></app-add-employee-button>
+    </div>
+    <main class="flex-1 overflow-y-auto p-8">
+      <app-breadcrumb></app-breadcrumb>
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

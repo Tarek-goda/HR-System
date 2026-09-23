@@ -1,0 +1,11 @@
+<!-- breadcrumb.html -->
+<div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+  @for (crumb of crumbs(); track crumb.url; let last = $last) {
+    @if (!last) {
+      <a [routerLink]="crumb.url" class="hover:text-blue-600 transition-colors">{{ crumb.label }}</a>
+      <span>&gt;</span>
+    } @else {
+      <span class="text-blue-600">{{ crumb.label }}</span>
+    }
+  }
+</div>

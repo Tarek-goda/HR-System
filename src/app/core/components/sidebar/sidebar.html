@@ -1,0 +1,211 @@
+<aside
+  class="w-64 h-screen bg-[#e6e6e6] flex flex-col justify-between p-6 select-none border-r border-gray-300/30 shrink-0"
+>
+  <!-- Top Section -->
+  <div class="space-y-8">
+    <!-- Admin Portal Badge -->
+    <div class="flex items-center gap-3">
+      <div
+        class="w-12 h-12 rounded-2xl bg-[#0052cc] flex items-center justify-center text-white shadow-[4px_4px_10px_#c5c5c5,-4px_-4px_10px_#ffffff] shrink-0"
+      >
+        <svg
+          class="w-6 h-6 block stroke-white"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
+        </svg>
+      </div>
+      <div>
+        <h2 class="font-bold text-gray-800 text-base leading-tight font-mono">Admin Portal</h2>
+        <p class="text-xs text-gray-500 font-mono">General Management</p>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="space-y-3">
+      <!-- Dashboard -->
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="shadow-[inset_4px_4px_8px_#bebebe,inset_-4px_-4px_8px_#ffffff] text-[#0052cc] font-bold"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-gray-600 font-medium text-sm hover:text-[#0052cc] transition-all duration-200 cursor-pointer font-mono"
+      >
+        <svg
+          class="w-5 h-5 block shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+
+      <!-- Directory -->
+      <a
+        routerLink="/directory"
+        routerLinkActive="shadow-[inset_4px_4px_8px_#bebebe,inset_-4px_-4px_8px_#ffffff] text-[#0052cc] font-bold"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-gray-600 font-medium text-sm hover:text-[#0052cc] transition-all duration-200 cursor-pointer font-mono"
+      >
+        <svg
+          class="w-5 h-5 block shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Directory</span>
+      </a>
+
+      <!-- Attendance -->
+      <a
+        routerLink="/attendance"
+        routerLinkActive="shadow-[inset_4px_4px_8px_#bebebe,inset_-4px_-4px_8px_#ffffff] text-[#0052cc] font-bold"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-gray-600 font-medium text-sm hover:text-[#0052cc] transition-all duration-200 cursor-pointer font-mono"
+      >
+        <svg
+          class="w-5 h-5 block shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Attendance</span>
+      </a>
+
+      <!-- Payroll -->
+      <a
+        routerLink="/payroll"
+        routerLinkActive="shadow-[inset_4px_4px_8px_#bebebe,inset_-4px_-4px_8px_#ffffff] text-[#0052cc] font-bold"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-gray-600 font-medium text-sm hover:text-[#0052cc] transition-all duration-200 cursor-pointer font-mono"
+      >
+        <svg
+          class="w-5 h-5 block shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        <span>Payroll</span>
+      </a>
+
+      <!-- Performance -->
+      <a
+        routerLink="/performance"
+        routerLinkActive="shadow-[inset_4px_4px_8px_#bebebe,inset_-4px_-4px_8px_#ffffff] text-[#0052cc] font-bold"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-gray-600 font-medium text-sm hover:text-[#0052cc] transition-all duration-200 cursor-pointer font-mono"
+      >
+        <svg
+          class="w-5 h-5 block shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+          <polyline points="17 6 23 6 23 12"></polyline>
+        </svg>
+        <span>Performance</span>
+      </a>
+
+      <!-- Settings -->
+      <a
+        routerLink="/settings"
+        routerLinkActive="shadow-[inset_4px_4px_8px_#bebebe,inset_-4px_-4px_8px_#ffffff] text-[#0052cc] font-bold"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-gray-600 font-medium text-sm hover:text-[#0052cc] transition-all duration-200 cursor-pointer font-mono"
+      >
+        <svg
+          class="w-5 h-5 block shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+          ></path>
+        </svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Bottom Section -->
+  <div class="space-y-2 pt-4 border-t border-gray-300/40">
+    <a
+      routerLink="/help"
+      routerLinkActive="shadow-[inset_3px_3px_6px_#c5c5c5,inset_-3px_-3px_6px_#ffffff] text-[#0052cc]"
+      class="flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-600 font-medium text-sm hover:text-[#0052cc] transition-all duration-200 cursor-pointer font-mono"
+    >
+      <svg
+        class="w-5 h-5 block shrink-0"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 24 24"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+      <span>Help Center</span>
+    </a>
+
+    <button
+      (click)="onLogout()"
+      class="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-red-600 font-medium text-sm hover:bg-red-50/50 transition-all duration-200 cursor-pointer font-mono"
+    >
+      <svg
+        class="w-5 h-5 block shrink-0 stroke-red-600"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 24 24"
+      >
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <span>Logout</span>
+    </button>
+  </div>
+</aside>

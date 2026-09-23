@@ -1,0 +1,248 @@
+<div class="login-background min-h-screen w-full flex items-center justify-center p-4">
+  <div class="login-card shadow-2xl flex flex-col md:flex-row overflow-hidden">
+    <!-- القسم الأيسر -->
+    <div
+      class="md:w-1/2 p-8 flex flex-col items-center justify-between text-center login-card-inner m-4"
+    >
+      <!-- القسم الأيسر - حاوية الصورة -->
+      <div class="illustration-container p-4 w-full flex justify-center items-center">
+        <img
+          src="/images/login.jpg"
+          alt="Lumina HR Interface"
+          class="max-w-full h-auto max-h-72 object-contain rounded-xl shadow-md"
+        />
+      </div>
+
+      <div class="mt-4">
+        <h1 class="text-3xl font-extrabold text-blue-800 tracking-wider">LUMINA HR</h1>
+        <p class="text-xs text-gray-600 mt-2 leading-relaxed">
+          Empowering the modern workforce with sculpted data and physical interfaces.
+        </p>
+      </div>
+
+      <!-- الأيقونات السفلية (SVG مدمجة) -->
+      <div class="flex space-x-4 mt-6">
+        <div class="icon-circle shadow-inner p-2.5 bg-white rounded-full">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            />
+          </svg>
+        </div>
+        <div class="icon-circle shadow-inner p-2.5 bg-white rounded-full">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            />
+          </svg>
+        </div>
+        <div class="icon-circle shadow-inner p-2.5 bg-white rounded-full">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- القسم الأيمن -->
+    <div class="md:w-1/2 p-10 flex flex-col justify-center">
+      <div class="self-start mb-4">
+        <span class="portal-badge text-xs px-3 py-1 font-bold tracking-wider">PORTAL ACCESS</span>
+      </div>
+
+      <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
+      <p class="text-sm text-gray-600 mb-8 leading-relaxed max-w-sm">
+        Please enter your corporate credentials to continue to the HR workspace.
+      </p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+        <!-- حقل الإيميل -->
+        <div>
+          <label class="input-label mb-2 block">Corporate Email</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-4 text-gray-400 font-bold">@</span>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="name@lumina.com"
+              class="shadow-sm input-field w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg"
+            />
+          </div>
+          <div>
+            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+              <span class="text-red-600 text-xs">Please enter a valid email address.</span>
+            } @else {
+              <span class="text-gray-400 text-xs">Enter your corporate email.</span>
+            }
+          </div>
+        </div>
+
+        <!-- 1. غلاف حقل الباسورد بالكامل -->
+        <div class="flex flex-col gap-1">
+          <div class="flex justify-between items-center mb-1">
+            <label class="input-label block">Password</label>
+            <a href="#" class="text-xs text-blue-600 font-semibold hover:underline">Forgot?</a>
+          </div>
+
+          <!-- 2. الـ div ده مخصص فقط للـ Input والقفل والعين (Relative Container) -->
+          <div class="relative flex items-center">
+            <!-- أيقونة القفل على الشمال -->
+            <span class="absolute left-4 text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </span>
+
+            <!-- حقل الإدخال -->
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+              class="shadow-sm input-field w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg"
+            />
+
+            <!-- زرار العين ثابت على اليمين جوه الـ input -->
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute right-4 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              @if (showPassword) {
+                <svg
+                  class="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.025 10.025 0 0111.13 5.937M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 3a9 9 0 01-2.18 3.52M3 3l18 18"
+                  />
+                </svg>
+              }
+            </button>
+          </div>
+
+          <!-- 3. 👈 رسالة الخطأ هنا! (خارج الـ relative container وتحت مربع الإدخال مباشرة) -->
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <span class="text-red-500 text-xs mt-1"> Enter your password. </span>
+          }
+        </div>
+        <div class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="remember"
+            class="w-4 h-4 text-blue-600 border-gray-300 rounded"
+          />
+          <label for="remember" class="text-xs text-gray-600 font-medium">Remember device</label>
+        </div>
+
+        <!-- زر Sign In -->
+        <button
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading"
+          class="login-button w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"
+        >
+          @if (isLoading) {
+            <span class="loader h-4 w-4"></span>
+            <span>Authenticating...</span>
+          } @else {
+            <span>Sign In</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
+            </svg>
+          }
+        </button>
+
+        @if (errorMessage) {
+          <div class="text-red-600 text-xs text-center p-2 rounded bg-red-50 border border-red-200">
+            {{ errorMessage }}
+          </div>
+        }
+      </form>
+
+      <!-- الأزرار الخارجية (Google, Microsoft, Apple) -->
+      <div class="mt-8 text-center">
+        <p class="text-xs text-gray-500 mb-4">Or sign in with secure providers</p>
+        <div class="flex justify-center gap-4">
+          <!-- Google Icon -->
+          <button class="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50">
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
+          </button>
+          <!-- Microsoft Icon -->
+          <button class="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50">
+            <svg class="w-5 h-5" viewBox="0 0 23 23">
+              <path fill="#f35325" d="M1 1h10v10H1z" />
+              <path fill="#81bc06" d="M12 1h10v10H12z" />
+              <path fill="#05a6f0" d="M1 12h10v10H1z" />
+              <path fill="#ffba08" d="M12 12h10v10H12z" />
+            </svg>
+          </button>
+          <!-- Apple Icon -->
+          <button class="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.85c.66-.8 1.11-1.92.99-3.04-.96.04-2.12.64-2.81 1.44-.61.71-1.15 1.86-1.01 2.97 1.08.08 2.17-.57 2.83-1.37z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
