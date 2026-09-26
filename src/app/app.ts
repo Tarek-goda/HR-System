@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { SupabaseService } from './core/services/Supabase/supabase';
-
+import { ToastContainer } from './core/components/toast-container/toast-container';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastContainer],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

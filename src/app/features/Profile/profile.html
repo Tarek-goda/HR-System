@@ -1,0 +1,68 @@
+<div class="max-w-2xl mx-auto">
+  @if (isLoading()) {
+    <p class="text-center text-gray-500">جاري التحميل...</p>
+  } @else if (profile(); as p) {
+    <div class="bg-[#e6e6e6] p-8 rounded-3xl shadow-[8px_8px_16px_#c5c5c5,-8px_-8px_16px_#ffffff] space-y-6">
+
+      <!-- الصورة -->
+      <div class="text-center">
+        <div class="relative w-32 h-32 mx-auto mb-4">
+          <div class="w-full h-full rounded-full overflow-hidden bg-[#e0e0e0] shadow-[inset_4px_4px_8px_#c5c5c5,inset_-4px_-4px_8px_#ffffff]">
+            @if (avatarPreview() || p.avatar_url) {
+              <img [src]="avatarPreview() || p.avatar_url" class="w-full h-full object-cover" />
+            } @else {
+              <div class="w-full h-full flex items-center justify-center bg-blue-600 text-white text-3xl font-bold">
+                {{ (p.full_name || p.email)[0].toUpperCase() }}
+              </div>
+            }
+          </div>
+
+          @if (canEditNameAndAvatar()) {
+            <input #fileInput type="file" accept="image/*" class="hidden" (change)="onPhotoSelected($event)">
+            <button type="button" (click)="fileInput.click()"
+                    class="absolute bottom-0 right-0 w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full shadow-md">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+              </svg>
+            </button>
+          }
+        </div>
+
+        <p class="text-sm text-gray-500">{{ p.email }}</p>
+        <span class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+          {{ p.role }}
+        </span>
+      </div>
+
+      <!-- الفورم -->
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="space-y-4">
+        <div>
+          <label class="block text-gray-600 mb-2 font-bold text-sm">الاسم</label>
+          <input type="text" formControlName="fullName"
+                 [readonly]="!canEditNameAndAvatar()"
+                 class="w-full bg-[#f0f0f0] text-gray-700 px-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none"
+                 [class.opacity-60]="!canEditNameAndAvatar()">
+        </div>
+
+        @if (p.job_title !== null || canEditJobTitle()) {
+          <div>
+            <label class="block text-gray-600 mb-2 font-bold text-sm">المسمى الوظيفي</label>
+            <input type="text" formControlName="jobTitle"
+                   [readonly]="!canEditJobTitle()"
+                   class="w-full bg-[#f0f0f0] text-gray-700 px-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none"
+                   [class.opacity-60]="!canEditJobTitle()">
+          </div>
+        }
+
+        @if (canEditNameAndAvatar() || canEditJobTitle()) {
+          <button type="submit" [disabled]="isSaving()"
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md disabled:opacity-50">
+            {{ isSaving() ? 'جاري الحفظ...' : 'حفظ التعديلات' }}
+          </button>
+        }
+      </form>
+    </div>
+  } @else {
+    <p class="text-center text-red-600">الملف الشخصي غير موجود</p>
+  }
+</div>

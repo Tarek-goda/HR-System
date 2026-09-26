@@ -10,6 +10,7 @@ export interface UserProfile {
   id: string;
   email: string;
   name?: string;
+  avatar_url?: string;
   role: UserRole;
 }
 
@@ -43,6 +44,7 @@ export class AuthService {
       id: profile['id'],
       email: profile['email'],
       name: profile['name'],
+      avatar_url: profile['avatar_url'],
       role: profile['role'],
     });
   }
@@ -75,6 +77,7 @@ export class AuthService {
       id: profile['id'],
       email: profile['email'],
       name: profile['name'],
+      avatar_url: profile['avatar_url'],
       role: profile['role'],
     };
 

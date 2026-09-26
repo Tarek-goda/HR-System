@@ -3,16 +3,18 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/Auth/auth';
+import { ToastService } from '../../../core/services/Toast/toast';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
   private authService = inject(AuthService);
 
   isLoading = false;
@@ -25,7 +27,7 @@ export class LoginComponent {
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   async onSubmit() {
@@ -37,8 +39,11 @@ export class LoginComponent {
 
       try {
         await this.authService.login(email, password);
+        this.toastService.success('تم تسجيل الدخول بنجاح'); // جديد
       } catch (error: any) {
-        this.errorMessage = error.message ?? 'Invalid email or password. Please try again.';
+        const message = error.message ?? 'Invalid email or password. Please try again.';
+        this.errorMessage = message;
+        this.toastService.error(message); // جديد
       } finally {
         this.isLoading = false;
       }

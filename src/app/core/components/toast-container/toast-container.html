@@ -1,0 +1,28 @@
+<!-- core/components/toast-container/toast-container.html -->
+<div class="fixed top-6 right-6 z-50 space-y-3 font-mono">
+  @for (msg of toastService.messages(); track msg.id) {
+    <div
+      class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-sm font-bold text-white animate-fade-in"
+      [class.bg-emerald-600]="msg.type === 'success'"
+      [class.bg-red-600]="msg.type === 'error'">
+
+      @if (msg.type === 'success') {
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      } @else {
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      }
+
+      <span>{{ msg.text }}</span>
+
+      <button (click)="toastService.dismiss(msg.id)" class="ml-2 opacity-70 hover:opacity-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  }
+</div>
