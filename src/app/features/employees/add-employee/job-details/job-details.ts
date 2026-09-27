@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AddEmployeeState } from '../add-employee-state';
-import { DepartmentsService, Department } from '../../../../core/services/Departments/departments';
+import { DepartmentsService, Department } from '../../../../core/services/departments/departments';
 
 @Component({
   selector: 'app-job-details',

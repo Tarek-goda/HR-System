@@ -1,6 +1,6 @@
-// core/services/Departments/departments.ts
+// core/services/departments/departments.ts
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService } from '../Supabase/supabase';
+import { SupabaseService } from '../supabase/supabase';
 
 export interface Department {
   id: string;

@@ -2,8 +2,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../../core/services/Auth/auth';
-import { ToastService } from '../../../core/services/Toast/toast';
+import { AuthService } from '../../../core/services/auth/auth';
+import { ToastService } from '../../../core/services/toast/toast';
 
 @Component({
   selector: 'app-login',

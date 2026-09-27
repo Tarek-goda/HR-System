@@ -3,9 +3,9 @@ import { Component, inject, signal, OnInit, ElementRef, HostListener } from '@an
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { map } from 'rxjs/operators';
-import { AuthService } from '../../services/Auth/auth';
-import { NotificationsService } from '../../services/Notifications/notifications';
-import { SupabaseService } from '../../services/Supabase/supabase';
+import { AuthService } from '../../services/auth/auth';
+import { NotificationsService } from '../../services/notifications/notifications';
+import { SupabaseService } from '../../services/supabase/supabase';
 
 export interface EmployeeSearchResult {
   profile_id: string;

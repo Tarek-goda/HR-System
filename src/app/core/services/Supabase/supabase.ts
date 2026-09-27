@@ -1,4 +1,4 @@
-// src/app/core/services/Supabase/supabase.ts
+// src/app/core/services/supabase/supabase.ts
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../../../environments/environment';

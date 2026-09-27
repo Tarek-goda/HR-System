@@ -35,6 +35,15 @@ export const routes: Routes = [
         path: 'performance',
         loadComponent: () => import('./pages/performance/performance').then((m) => m.Performance),
       },
+      // ✅ اتنقلوا هنا، جوه children، وبحروف صغيرة
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+      },
+      {
+        path: 'profile/:id',
+        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+      },
       {
         path: 'add-employee',
         loadComponent: () =>
@@ -66,17 +75,9 @@ export const routes: Routes = [
       },
     ],
   },
+  // ✅ الـ Wildcard لازم يفضل آخر حاجة في المصفوفة كلها
   {
     path: '**',
     redirectTo: 'login',
-  },
-  // app.routes.ts — جوه children بتاعت الـ Layout
-  {
-    path: 'profile',
-    loadComponent: () => import('./features/Profile/profile').then((m) => m.Profile),
-  },
-  {
-    path: 'profile/:id',
-    loadComponent: () => import('./features/Profile/profile').then((m) => m.Profile),
   },
 ];

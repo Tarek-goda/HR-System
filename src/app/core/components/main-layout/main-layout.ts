@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Header } from '../header/header';
 import { Sidebar } from '../sidebar/sidebar';
-import { Breadcrumb } from './Breadcrumb/Breadcrumb';
+import { Breadcrumb } from '../Breadcrumb/Breadcrumb';
 import {AddEmployeeButton} from '../../services/add-employee-button/add-employee-button';
 
 

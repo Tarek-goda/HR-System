@@ -2,7 +2,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/Auth/auth';
+import { AuthService } from '../../services/auth/auth';
 import { map } from 'rxjs/operators';
 
 @Component({

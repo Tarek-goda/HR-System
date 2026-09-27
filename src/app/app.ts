@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
-import { SupabaseService } from './core/services/Supabase/supabase';
+import { SupabaseService } from './core/services/supabase/supabase';
 import { ToastContainer } from './core/components/toast-container/toast-container';
 @Component({
   selector: 'app-root',

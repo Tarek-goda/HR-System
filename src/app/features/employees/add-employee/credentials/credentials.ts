@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SupabaseService } from '../../../../core/services/Supabase/supabase';
+import { SupabaseService } from '../../../../core/services/supabase/supabase';
 import { AddEmployeeState } from '../add-employee-state';
 
 // ⬇️ الدالة لازم تكون هنا، فوق الـ @Component وبرّه الـ class تماماً

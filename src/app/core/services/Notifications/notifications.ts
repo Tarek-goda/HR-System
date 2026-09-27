@@ -1,7 +1,7 @@
 // core/services/Notifications/notifications.ts
 import { Injectable, inject, signal } from '@angular/core';
-import { SupabaseService } from '../Supabase/supabase';
-import { AuthService } from '../Auth/auth';
+import { SupabaseService } from '../supabase/supabase';
+import { AuthService } from '../auth/auth';
 
 export interface AppNotification {
   id: string;

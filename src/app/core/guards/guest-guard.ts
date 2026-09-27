@@ -1,7 +1,7 @@
 // src/app/core/guards/guest.guard.ts
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { SupabaseService } from '../services/Supabase/supabase';
+import { SupabaseService } from '../services/supabase/supabase';
 import { map } from 'rxjs/operators';
 import { from } from 'rxjs';
 

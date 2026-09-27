@@ -1,17 +1,17 @@
-// features/ProfileComponent/profile.ts
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ProfileService, ProfileDetails } from '../../core/services/Profile/profile';
-import { AuthService } from '../../core/services/Auth/auth';
-import { ToastService } from '../../core/services/Toast/toast';
+import { ProfileService, ProfileDetails } from '../../core/services/profile/profile';
+import { AuthService } from '../../core/services/auth/auth';
+import { ToastService } from '../../core/services/toast/toast';
+import { AvatarCropper } from '../../core/components/avatar-cropper/avatar-cropper';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './profile.html'
+  imports: [CommonModule, ReactiveFormsModule, AvatarCropper],
+  templateUrl: './profile.html',
 })
 export class Profile implements OnInit {
   private fb = inject(FormBuilder);
@@ -24,20 +24,23 @@ export class Profile implements OnInit {
   isLoading = signal(true);
   isSaving = signal(false);
   avatarPreview = signal<string | null>(null);
+  imageLoadFailed = signal(false);
   selectedFile: File | null = null;
 
-  // صلاحيات محسوبة على مستوى الواجهة (التحقق الحقيقي دايماً في RLS/Trigger)
+  showCropper = signal(false);
+  fileToCrop: File | null = null;
+
   canEditNameAndAvatar = signal(false);
   canEditJobTitle = signal(false);
 
   form = this.fb.nonNullable.group({
     fullName: ['', Validators.required],
-    jobTitle: ['']
+    jobTitle: [''],
   });
 
   async ngOnInit() {
-    const targetId = this.route.snapshot.paramMap.get('id')
-      ?? this.authService.currentUser$.value?.id;
+    const targetId =
+      this.route.snapshot.paramMap.get('id') ?? this.authService.currentUser$.value?.id;
 
     if (!targetId) return;
 
@@ -49,7 +52,7 @@ export class Profile implements OnInit {
 
     this.form.patchValue({
       fullName: data.full_name ?? '',
-      jobTitle: data.job_title ?? ''
+      jobTitle: data.job_title ?? '',
     });
 
     this.computePermissions(data);
@@ -66,13 +69,17 @@ export class Profile implements OnInit {
       !isSelf &&
       (target.role === 'hr_specialist' || target.role === 'employee');
 
-    // الاسم والصورة: الأونر أو نفسك (لو employee/hr_specialist)
     this.canEditNameAndAvatar.set(
-      isOwner || isHrManagerEditingOther || (isSelf && (me.role === 'employee' || me.role === 'hr_specialist'))
+      isOwner ||
+        isHrManagerEditingOther ||
+        (isSelf && (me.role === 'employee' || me.role === 'hr_specialist')),
     );
 
-    // الـ Job Title: الأونر أو HR Manager بيعدّل في غيره
     this.canEditJobTitle.set(isOwner || isHrManagerEditingOther);
+  }
+
+  onImageError() {
+    this.imageLoadFailed.set(true);
   }
 
   onPhotoSelected(event: Event) {
@@ -80,8 +87,20 @@ export class Profile implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.selectedFile = file;
-    this.avatarPreview.set(URL.createObjectURL(file));
+    this.fileToCrop = file;
+    this.showCropper.set(true);
+  }
+
+  onCropSaved(croppedFile: File) {
+    this.selectedFile = croppedFile;
+    this.avatarPreview.set(URL.createObjectURL(croppedFile));
+    this.imageLoadFailed.set(false);
+    this.showCropper.set(false);
+  }
+
+  onCropCancelled() {
+    this.showCropper.set(false);
+    this.fileToCrop = null;
   }
 
   async onSave() {
@@ -91,17 +110,17 @@ export class Profile implements OnInit {
     this.isSaving.set(true);
 
     try {
-      let avatarUrl = target.avatar_url;
+      let avatarPath = target.avatar_path;
 
       if (this.selectedFile && this.canEditNameAndAvatar()) {
-        avatarUrl = await this.profileService.uploadAvatar(target.id, this.selectedFile);
+        avatarPath = await this.profileService.uploadAvatar(target.id, this.selectedFile);
       }
 
       if (this.canEditNameAndAvatar()) {
         await this.profileService.updateNameAndAvatar(
           target.id,
           this.form.value.fullName!,
-          avatarUrl
+          avatarPath,
         );
       }
 
@@ -110,6 +129,9 @@ export class Profile implements OnInit {
       }
 
       this.toastService.success('تم حفظ التعديلات بنجاح');
+
+      // جديد: حدّث بيانات المستخدم الحالي في الـ Header فوراً بعد الحفظ
+      await this.authService.refreshCurrentUser();
     } catch (err: any) {
       this.toastService.error(err.message ?? 'حدث خطأ أثناء الحفظ');
     } finally {
