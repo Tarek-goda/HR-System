@@ -1,16 +1,19 @@
 import { TestBed } from '@angular/core/testing';
+import { AuthService } from './auth';
+import { ProfileService } from '../profile/profile';
 
-import { Auth } from './auth';
-
-describe('Auth', () => {
-  let service: Auth;
-
+describe('AuthService', () => {
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Auth);
+    TestBed.configureTestingModule({
+      providers: [AuthService, ProfileService]
+    });
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('should create both services without circular dependency', () => {
+    const authService = TestBed.inject(AuthService);
+    const profileService = TestBed.inject(ProfileService);
+
+    expect(authService).toBeTruthy();
+    expect(profileService).toBeTruthy();
   });
 });

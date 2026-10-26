@@ -31,7 +31,7 @@ interface DraftData {
 const STORAGE_KEY = 'add-employee-draft';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AddEmployeeState {
   // نقرأ أي Draft محفوظ مرة واحدة بس، وقت إنشاء الـ Service (يعني أول ما التطبيق يفتح)
@@ -60,7 +60,7 @@ export class AddEmployeeState {
       const draft: DraftData = {
         personalInfo: this.personalInfo(),
         jobDetails: this.jobDetails(),
-        credentials: this.credentials()
+        credentials: this.credentials(),
       };
       this.writeDraft(draft);
     });
@@ -102,11 +102,14 @@ export class AddEmployeeState {
       email: creds.email,
       password: creds.password,
       full_name: `${personal.firstName} ${personal.lastName}`,
+      personal_email: personal.personalEmail, // جديد
+      phone: personal.phone, // جديد
+      birth_date: personal.birthDate, // جديد
       job_title: job.jobTitle,
       department_id: job.department,
       hire_date: job.hireDate,
       salary: job.salary,
-      system_role: job.systemRole
+      system_role: job.systemRole,
     };
   }
 

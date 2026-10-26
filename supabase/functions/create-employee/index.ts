@@ -12,21 +12,23 @@ serve(async (req) => {
   // معالجة CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
-  }     
+  }
   try {
     // 1. Client بصلاحيات المستخدم الحالي (عشان نتحقق هو Owner/HR Manager فعلاً)
     const authHeader = req.headers.get('Authorization')!;
     const userClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
+      { global: { headers: { Authorization: authHeader } } },
     );
 
-    const { data: { user } } = await userClient.auth.getUser();
+    const {
+      data: { user },
+    } = await userClient.auth.getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -40,30 +42,45 @@ serve(async (req) => {
     if (!profile || !['owner', 'hr_manager'].includes(profile.role)) {
       return new Response(JSON.stringify({ error: 'Forbidden: insufficient permissions' }), {
         status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     // 3. Client إداري (Service Role) لعمل الحساب فعلياً
     const adminClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
-    const { email, password, full_name, job_title, department_id, hire_date, salary, system_role } = await req.json();
+    const {
+      email,
+      password,
+      full_name,
+      personal_email,
+      phone,
+      birth_date,
+      job_title,
+      department_id,
+      hire_date,
+      salary,
+      system_role,
+    } = await req.json();
 
     // 4. إنشاء حساب الـ Auth (بدون ما يأثر على جلسة الـ Owner)
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
       email,
       password,
-      email_confirm: true
+      email_confirm: true,
     });
 
     if (createError || !newUser.user) {
-      return new Response(JSON.stringify({ error: createError?.message ?? 'Failed to create user' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ error: createError?.message ?? 'Failed to create user' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      );
     }
 
     // 5. تحديث الـ role والـ department في profiles (الـ Trigger بيعمل الصف الأساسي)
@@ -73,32 +90,32 @@ serve(async (req) => {
       .eq('id', newUser.user.id);
 
     // 6. إنشاء صف في employees
-    const { error: empError } = await adminClient
-      .from('employees')
-      .insert({
-        profile_id: newUser.user.id,
-        job_title,
-        hire_date,
-        salary
-      });
+    const { error: empError } = await adminClient.from('employees').insert({
+      profile_id: newUser.user.id,
+      personal_email, // جديد
+      phone, // جديد
+      birth_date, // جديد
+      job_title,
+      hire_date,
+      salary,
+    });
 
     if (empError) {
       return new Response(JSON.stringify({ error: empError.message }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     return new Response(JSON.stringify({ success: true, user_id: newUser.user.id }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-
-    } catch (err) {
+  } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error occurred';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });

@@ -1,103 +1,194 @@
-<div class="max-w-2xl mx-auto">
+<div class="max-w-3xl mx-auto">
   @if (isLoading()) {
     <p class="text-center text-gray-500">جاري التحميل...</p>
   } @else if (profile(); as p) {
-    <div
-      class="bg-[#e6e6e6] p-8 rounded-3xl shadow-[8px_8px_16px_#c5c5c5,-8px_-8px_16px_#ffffff] space-y-6"
-    >
-      <div class="text-center">
-        <div class="relative w-32 h-32 mx-auto mb-4">
-          <div
-            class="w-full h-full rounded-full overflow-hidden bg-[#e0e0e0] shadow-[inset_4px_4px_8px_#c5c5c5,inset_-4px_-4px_8px_#ffffff]"
-          >
-            @if ((avatarPreview() || p.avatar_url) && !imageLoadFailed()) {
+    <!-- بطاقة العرض (Read-only) -->
+    <div class="bg-white p-8 rounded-3xl shadow-lg space-y-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-100">
+            @if (p.avatar_url && !imageLoadFailed()) {
               <img
-                [src]="avatarPreview() || p.avatar_url"
+                [src]="p.avatar_url"
                 (error)="onImageError()"
                 class="w-full h-full object-cover"
               />
             } @else {
               <div
-                class="w-full h-full flex items-center justify-center bg-blue-600 text-white text-3xl font-bold"
+                class="w-full h-full flex items-center justify-center bg-blue-600 text-white text-2xl font-bold"
               >
                 {{ (p.full_name || p.email)[0].toUpperCase() }}
               </div>
             }
           </div>
-
-          @if (canEditNameAndAvatar()) {
-            <input
-              #fileInput
-              type="file"
-              accept="image/*"
-              class="hidden"
-              (change)="onPhotoSelected($event)"
-            />
-            <button
-              type="button"
-              (click)="fileInput.click()"
-              class="absolute bottom-0 right-0 w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full shadow-md"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                />
-              </svg>
-            </button>
-          }
-        </div>
-
-        <p class="text-sm text-gray-500">{{ p.email }}</p>
-        <span
-          class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"
-        >
-          {{ p.role }}
-        </span>
-      </div>
-
-      <form [formGroup]="form" (ngSubmit)="onSave()" class="space-y-4">
-        <div>
-          <label class="block text-gray-600 mb-2 font-bold text-sm">الاسم</label>
-          <input
-            type="text"
-            formControlName="fullName"
-            [readonly]="!canEditNameAndAvatar()"
-            class="w-full bg-[#f0f0f0] text-gray-700 px-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none"
-            [class.opacity-60]="!canEditNameAndAvatar()"
-          />
-        </div>
-
-        @if (p.job_title !== null || canEditJobTitle()) {
           <div>
-            <label class="block text-gray-600 mb-2 font-bold text-sm">المسمى الوظيفي</label>
-            <input
-              type="text"
-              formControlName="jobTitle"
-              [readonly]="!canEditJobTitle()"
-              class="w-full bg-[#f0f0f0] text-gray-700 px-4 py-3 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,inset_-3px_-3px_6px_#ffffff] outline-none"
-              [class.opacity-60]="!canEditJobTitle()"
-            />
+            <h2 class="text-xl font-bold text-gray-900">{{ p.full_name || 'بدون اسم' }}</h2>
+            <span
+              class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"
+            >
+              {{ p.role }}
+            </span>
           </div>
-        }
+        </div>
 
         @if (canEditNameAndAvatar() || canEditJobTitle()) {
           <button
-            type="submit"
-            [disabled]="isSaving()"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md disabled:opacity-50"
+            (click)="openEditModal()"
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-sm"
           >
-            {{ isSaving() ? 'جاري الحفظ...' : 'حفظ التعديلات' }}
+            تعديل الملف الشخصي
           </button>
         }
-      </form>
+      </div>
+
+      @if (hasPendingRequest()) {
+        <div
+          class="bg-amber-50 border border-amber-200 text-amber-700 text-sm px-4 py-2 rounded-xl"
+        >
+          يوجد طلب تعديل مسمى وظيفي بانتظار موافقة الأونر
+        </div>
+      }
+
+      <div>
+        <h3 class="text-sm font-bold text-gray-500 mb-3">المعلومات الشخصية</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-gray-400 mb-1">البريد الإلكتروني</p>
+            <p class="text-gray-800 font-medium">{{ p.email }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 mb-1">الاسم</p>
+            <p class="text-gray-800 font-medium">{{ p.full_name || '—' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-bold text-gray-500 mb-3">معلومات العمل</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-gray-400 mb-1">الدور</p>
+            <p class="text-gray-800 font-medium">{{ p.role }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 mb-1">المسمى الوظيفي</p>
+            <p class="text-gray-800 font-medium">{{ p.job_title || '—' }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   } @else {
     <p class="text-center text-red-600">الملف الشخصي غير موجود</p>
   }
 </div>
+
+<!-- مودال التعديل -->
+@if (showEditModal() && profile(); as p) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-3xl p-8 w-[380px] text-center">
+      <h3 class="text-xl font-bold text-gray-900">تعديل الملف الشخصي</h3>
+      <p class="text-sm text-gray-500 mb-6">تحديث معلوماتك الشخصية</p>
+
+      @if (canEditNameAndAvatar()) {
+        <div class="relative w-24 h-24 mx-auto mb-2">
+          <div class="w-full h-full rounded-full overflow-hidden bg-gray-100">
+            @if ((avatarPreview() || p.avatar_url) && !removePhotoFlag) {
+              <img [src]="avatarPreview() || p.avatar_url" class="w-full h-full object-cover" />
+            } @else {
+              <div
+                class="w-full h-full flex items-center justify-center bg-blue-600 text-white text-2xl font-bold"
+              >
+                {{ (p.full_name || p.email)[0].toUpperCase() }}
+              </div>
+            }
+          </div>
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            class="hidden"
+            (change)="onPhotoSelected($event)"
+          />
+          <button
+            type="button"
+            (click)="fileInput.click()"
+            class="absolute bottom-0 right-0 w-8 h-8 flex items-center justify-center bg-blue-700 text-white rounded-full"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        @if (avatarPreview() || (p.avatar_url && !removePhotoFlag)) {
+          <button
+            type="button"
+            (click)="onRemovePhoto()"
+            class="text-red-600 text-sm font-bold mb-4 flex items-center gap-1 mx-auto"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            إزالة الصورة
+          </button>
+        }
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="space-y-4 text-right">
+        <div>
+          <label class="text-sm font-bold text-gray-600">الاسم *</label>
+          <input
+            type="text"
+            formControlName="fullName"
+            [readonly]="!canEditNameAndAvatar()"
+            class="w-full mt-1 bg-gray-50 px-4 py-2.5 rounded-xl outline-none border border-gray-200"
+          />
+        </div>
+
+        @if (canEditJobTitle()) {
+          <div>
+            <label class="text-sm font-bold text-gray-600">المسمى الوظيفي</label>
+            <input
+              type="text"
+              formControlName="jobTitle"
+              class="w-full mt-1 bg-gray-50 px-4 py-2.5 rounded-xl outline-none border border-gray-200"
+            />
+            @if (isHrManagerEditingOther()) {
+              <p class="text-xs text-amber-600 mt-1">التعديل هيحتاج موافقة الأونر</p>
+            }
+          </div>
+        }
+
+        <div class="flex gap-3 pt-2">
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="flex-1 bg-blue-700 text-white font-bold py-3 rounded-xl disabled:opacity-50"
+          >
+            {{ isSaving() ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
+          </button>
+          <button
+            type="button"
+            (click)="closeEditModal()"
+            class="px-5 bg-gray-100 text-gray-700 font-bold rounded-xl"
+          >
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
 
 @if (showCropper() && fileToCrop) {
   <app-avatar-cropper

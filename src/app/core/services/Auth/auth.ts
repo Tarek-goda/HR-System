@@ -1,5 +1,5 @@
 // core/services/auth/auth.ts
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { SupabaseService } from '../supabase/supabase';
@@ -18,10 +18,14 @@ export interface UserProfile {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private supabaseService = inject(SupabaseService);
-  private profileService = inject(ProfileService);
   private router = inject(Router);
+  private injector = inject(Injector);
 
   currentUser$ = new BehaviorSubject<UserProfile | null>(null);
+
+  private get profileService(): ProfileService {
+    return this.injector.get(ProfileService);
+  }
 
   constructor() {
     this.restoreSession();
