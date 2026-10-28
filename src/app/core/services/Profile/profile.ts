@@ -11,23 +11,41 @@ export interface ProfileDetails {
   role: string;
   department_id: string | null;
   job_title: string | null;
-  personal_email: string | null; // جديد
-  phone: string | null; // جديد
-  birth_date: string | null; // جديد
+  personal_email: string | null;
+  phone: string | null;
+  birth_date: string | null;
   salary: number | null;
   hire_date: string | null;
   employee_id: string | null;
 }
 
 export type ChangeableField =
+  | 'full_name'
+  | 'avatar_url'
+  | 'phone'
+  | 'birth_date'
+  | 'personal_email'
   | 'job_title'
   | 'department_id'
   | 'salary'
   | 'hire_date'
-  | 'email'
-  | 'personal_email'
-  | 'phone'
-  | 'birth_date';
+  | 'email';
+
+export const FIELD_LABELS: Record<ChangeableField, string> = {
+  full_name: 'الاسم',
+  avatar_url: 'الصورة الشخصية',
+  phone: 'رقم الهاتف',
+  birth_date: 'تاريخ الميلاد',
+  personal_email: 'البريد الشخصي',
+  job_title: 'المسمى الوظيفي',
+  department_id: 'القسم',
+  salary: 'الراتب الشهري',
+  hire_date: 'تاريخ التعيين',
+  email: 'البريد الإلكتروني (الدخول)',
+};
+
+// الحقول اللي مكانها جدول profiles، والباقي في employees
+const PROFILE_TABLE_FIELDS: ChangeableField[] = ['full_name', 'avatar_url', 'department_id'];
 
 export interface ChangeRequest {
   id: string;
@@ -42,12 +60,12 @@ export interface ChangeRequest {
   created_at: string;
 }
 
-export type JobTitleRequest = ChangeRequest;
-
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
   private supabaseService = inject(SupabaseService);
   private authService = inject(AuthService);
+
+  // ================== القراءة ==================
 
   async getProfile(profileId: string): Promise<ProfileDetails | null> {
     const [profileResult, employeeResult] = await Promise.all([
@@ -58,7 +76,7 @@ export class ProfileService {
         .single(),
       this.supabaseService.client
         .from('employees')
-        .select('id, job_title, salary, hire_date, personal_email, phone, birth_date') // أضيف هنا
+        .select('id, job_title, salary, hire_date, personal_email, phone, birth_date')
         .eq('profile_id', profileId)
         .maybeSingle(),
     ]);
@@ -86,22 +104,7 @@ export class ProfileService {
     };
   }
 
-  // جديد: تحديث الحقول الشخصية (phone, DOB, personal_email) — بتتطبق فوراً زي الاسم/الصورة
-  async updatePersonalDetails(
-    employeeId: string,
-    phone: string,
-    birthDate: string,
-    personalEmail: string,
-  ) {
-    const { error } = await this.supabaseService.client
-      .from('employees')
-      .update({ phone, birth_date: birthDate, personal_email: personalEmail })
-      .eq('id', employeeId);
-
-    if (error) throw new Error(error.message);
-  }
-
-  // جديد: ينشئ صف employees لو مش موجود (مطلوب لحساب Owner اللي اتعمل يدوي)
+  // ينشئ صف employees لو مش موجود (مطلوب لحساب Owner اللي اتعمل يدوي)
   async ensureEmployeeRecord(profileId: string): Promise<string> {
     const { data: existing } = await this.supabaseService.client
       .from('employees')
@@ -121,17 +124,15 @@ export class ProfileService {
     return inserted['id'];
   }
 
-  // ---- الاسم والصورة: بتتطبق فوراً دايماً ----
-  async updateNameAndAvatar(profileId: string, fullName: string, avatarPath: string | null) {
-    const { error } = await this.supabaseService.client
-      .from('profiles')
-      .update({ full_name: fullName, avatar_url: avatarPath })
-      .eq('id', profileId);
-    if (error) throw new Error(error.message);
-  }
+  // ================== الصور ==================
 
-  async uploadAvatar(profileId: string, file: File): Promise<string> {
-    const filePath = `${profileId}/avatar.${file.name.split('.').pop()}`;
+  // forApproval = true: مسار مؤقت، عشان الصورة الحالية ما تتغيرش قبل موافقة الأونر
+  async uploadAvatar(profileId: string, file: File, forApproval = false): Promise<string> {
+    const ext = file.name.split('.').pop() || 'png';
+    const filePath = forApproval
+      ? `${profileId}/pending-${Date.now()}.${ext}`
+      : `${profileId}/avatar.${ext}`;
+
     const { error } = await this.supabaseService.client.storage
       .from('avatars')
       .upload(filePath, file, { upsert: true });
@@ -147,34 +148,38 @@ export class ProfileService {
     return data.signedUrl;
   }
 
-  async updateSensitiveFieldDirectly(
-    employeeId: string,
-    profileId: string,
-    field: ChangeableField,
-    value: string,
-  ) {
-    if (field === 'department_id') {
+  // ================== التعديل المباشر (Owner / الشخص على نفسه) ==================
+
+  async applyFieldDirectly(profileId: string, field: ChangeableField, value: string) {
+    if (field === 'email') {
+      throw new Error('الإيميل بيتغير عبر changeEmailDirectly');
+    }
+
+    // القيمة الفاضية تتحول لـ null، والراتب لرقم
+    const finalValue: string | number | null =
+      value === '' ? null : field === 'salary' ? Number(value) : value;
+
+    if (PROFILE_TABLE_FIELDS.includes(field)) {
       const { error } = await this.supabaseService.client
         .from('profiles')
-        .update({ department_id: value })
+        .update({ [field]: finalValue })
         .eq('id', profileId);
       if (error) throw new Error(error.message);
       return;
     }
 
-    const column =
-      field === 'job_title' ? 'job_title' : field === 'salary' ? 'salary' : 'hire_date';
-
+    const employeeId = await this.ensureEmployeeRecord(profileId);
     const { error } = await this.supabaseService.client
       .from('employees')
-      .update({ [column]: value })
+      .update({ [field]: finalValue })
       .eq('id', employeeId);
-
     if (error) throw new Error(error.message);
   }
 
+  // ================== طلبات الموافقة ==================
+
+  // HR Manager: إنشاء طلب بدل التعديل المباشر
   async requestFieldChange(
-    employeeId: string | null,
     targetProfileId: string,
     field: ChangeableField,
     oldValue: string | null,
@@ -184,7 +189,6 @@ export class ProfileService {
     if (!me) throw new Error('غير مسجل دخول');
 
     const { error } = await this.supabaseService.client.from('profile_change_requests').insert({
-      employee_id: employeeId,
       target_profile_id: targetProfileId,
       requested_by: me.id,
       field_name: field,
@@ -224,20 +228,28 @@ export class ProfileService {
     const me = this.authService.currentUser$.value;
     if (!me) throw new Error('غير مسجل دخول');
 
+    // الإيميل: الـ Edge Function بتحدّث auth + profiles + حالة الطلب بنفسها
     if (request.field_name === 'email') {
-      // ... زي ما هو
+      const { data: sessionData } = await this.supabaseService.client.auth.getSession();
+      const response = await fetch(`${this.supabaseService.url}/functions/v1/update-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionData.session?.access_token}`,
+        },
+        body: JSON.stringify({
+          targetProfileId: request.target_profile_id,
+          newEmail: request.new_value,
+          requestId: request.id,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? 'فشل تحديث الإيميل');
       return;
     }
 
-    // عدّلنا هنا: بنبعت target_profile_id كمان
-    if (request.employee_id || request.field_name === 'department_id') {
-      await this.updateSensitiveFieldDirectly(
-        request.employee_id ?? '',
-        request.target_profile_id,
-        request.field_name,
-        request.new_value,
-      );
-    }
+    // باقي الحقول: Owner بيطبّقها مباشرة
+    await this.applyFieldDirectly(request.target_profile_id, request.field_name, request.new_value);
 
     const { error } = await this.supabaseService.client
       .from('profile_change_requests')
@@ -259,7 +271,9 @@ export class ProfileService {
     if (error) throw new Error(error.message);
   }
 
-  // ---- الإيميل: Owner بس، فوري لغيره عبر Edge Function ----
+  // ================== الإيميل والباسورد ==================
+
+  // Owner فقط: تغيير إيميل أي حد مباشرة عبر Edge Function
   async changeEmailDirectly(targetProfileId: string, newEmail: string) {
     const { data: sessionData } = await this.supabaseService.client.auth.getSession();
     const response = await fetch(`${this.supabaseService.url}/functions/v1/update-email`, {
@@ -274,7 +288,7 @@ export class ProfileService {
     if (!response.ok) throw new Error(result.error ?? 'فشل تحديث الإيميل');
   }
 
-  // ---- الباسورد: أي حد بيغيّر باسورده هو بس، مباشرة من غير Edge Function ----
+  // أي مستخدم يغيّر باسورده هو بس
   async changeOwnPassword(newPassword: string) {
     const { error } = await this.supabaseService.client.auth.updateUser({ password: newPassword });
     if (error) throw new Error(error.message);

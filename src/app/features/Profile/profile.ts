@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -6,11 +6,18 @@ import {
   ProfileService,
   ProfileDetails,
   ChangeableField,
+  FIELD_LABELS,
 } from '../../core/services/profile/profile';
 import { DepartmentsService, Department } from '../../core/services/departments/departments';
 import { AuthService } from '../../core/services/auth/auth';
 import { ToastService } from '../../core/services/toast/toast';
 import { AvatarCropper } from '../../core/components/avatar-cropper/avatar-cropper';
+
+interface FieldChange {
+  field: ChangeableField;
+  oldValue: string | null;
+  newValue: string;
+}
 
 @Component({
   selector: 'app-profile',
@@ -41,19 +48,13 @@ export class Profile implements OnInit {
   selectedFile: File | null = null;
   removePhotoFlag = false;
 
-  // صلاحيات محسوبة
-  canEditPersonalInfo = signal(false); // اسم + صورة
-  canEditSensitiveFields = signal(false); // job_title/department/salary/hire_date
-  sensitiveFieldsNeedApproval = signal(false); // true لو HR Manager (محتاج موافقة)
-  canEditEmailDirectly = signal(false); // Owner بس
-  canRequestEmailChange = signal(false); // HR Manager (عبر طلب)
+  canEditPersonalInfo = signal(false); // الاسم + الصورة
+  canEditContactDetails = signal(false); // الهاتف + الميلاد + الإيميل الشخصي
+  canEditSensitiveFields = signal(false); // المسمى + القسم + الراتب + التعيين
+  canEditEmailDirectly = signal(false); // Owner
+  canRequestEmailChange = signal(false); // HR Manager على غيره
+  changesNeedApproval = signal(false); // HR Manager على غيره: كل الحقول بموافقة
   isSelf = signal(false);
-
-  // aliases kept for the existing template API
-  canEditNameAndAvatar = computed(() => this.canEditPersonalInfo());
-  canEditJobTitle = computed(() => this.canEditSensitiveFields());
-  hasPendingRequest = computed(() => this.hasPendingFields().has('job_title'));
-  isHrManagerEditingOther = computed(() => this.sensitiveFieldsNeedApproval() && !this.isSelf());
 
   form = this.fb.nonNullable.group({
     fullName: ['', Validators.required],
@@ -62,7 +63,7 @@ export class Profile implements OnInit {
     personalEmail: [''],
     jobTitle: [''],
     departmentId: [''],
-    salary: [0],
+    salary: [''],
     hireDate: [''],
     email: [''],
   });
@@ -78,9 +79,13 @@ export class Profile implements OnInit {
 
     const targetId =
       this.route.snapshot.paramMap.get('id') ?? this.authService.currentUser$.value?.id;
-
     if (!targetId) return;
+
     await this.loadProfile(targetId);
+  }
+
+  departmentName(id: string | null): string {
+    return this.departments().find((d) => d.id === id)?.name ?? '—';
   }
 
   private async loadProfile(targetId: string) {
@@ -96,19 +101,22 @@ export class Profile implements OnInit {
       personalEmail: data.personal_email ?? '',
       jobTitle: data.job_title ?? '',
       departmentId: data.department_id ?? '',
-      salary: data.salary ?? 0,
+      salary: data.salary != null ? String(data.salary) : '',
       hireDate: data.hire_date ?? '',
       email: data.email,
     });
 
     this.computePermissions(data);
 
-    if (this.sensitiveFieldsNeedApproval() || this.canRequestEmailChange()) {
+    if (this.changesNeedApproval()) {
       const pending = await this.profileService.getPendingRequests();
-      const fields = new Set<ChangeableField>(
-        pending.filter((r) => r.target_profile_id === data.id).map((r) => r.field_name),
+      this.hasPendingFields.set(
+        new Set<ChangeableField>(
+          pending.filter((r) => r.target_profile_id === data.id).map((r) => r.field_name),
+        ),
       );
-      this.hasPendingFields.set(fields);
+    } else {
+      this.hasPendingFields.set(new Set());
     }
   }
 
@@ -120,26 +128,19 @@ export class Profile implements OnInit {
     this.isSelf.set(self);
 
     const isOwner = me.role === 'owner';
-    // HR Manager ممنوع يعدّل نفسه أو الـ Owner خالص
-    const isHrManagerOnOther =
+    const selfEdit =
+      self && (me.role === 'employee' || me.role === 'hr_specialist' || me.role === 'hr_manager');
+    const hrManagerOnOther =
       me.role === 'hr_manager' &&
       !self &&
       (target.role === 'hr_specialist' || target.role === 'employee');
 
-    // الاسم والصورة
-    this.canEditPersonalInfo.set(
-      isOwner ||
-        isHrManagerOnOther ||
-        (self && (me.role === 'employee' || me.role === 'hr_specialist')),
-    );
-
-    // الحقول الحساسة (job_title, department, salary, hire_date)
-    this.canEditSensitiveFields.set(isOwner || isHrManagerOnOther);
-    this.sensitiveFieldsNeedApproval.set(isHrManagerOnOther); // HR Manager محتاج موافقة، Owner لأ
-
-    // الإيميل
+    this.canEditPersonalInfo.set(isOwner || selfEdit || hrManagerOnOther);
+    this.canEditContactDetails.set(isOwner || hrManagerOnOther);
+    this.canEditSensitiveFields.set(isOwner || hrManagerOnOther);
     this.canEditEmailDirectly.set(isOwner);
-    this.canRequestEmailChange.set(isHrManagerOnOther);
+    this.canRequestEmailChange.set(hrManagerOnOther);
+    this.changesNeedApproval.set(hrManagerOnOther);
   }
 
   // ---- الصورة ----
@@ -148,8 +149,7 @@ export class Profile implements OnInit {
   }
 
   onPhotoSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+    const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     this.fileToCrop = file;
     this.showCropper.set(true);
@@ -174,9 +174,11 @@ export class Profile implements OnInit {
     this.avatarPreview.set(null);
   }
 
+  // ---- المودالات ----
   openEditModal() {
     this.removePhotoFlag = false;
     this.selectedFile = null;
+    this.avatarPreview.set(null);
     this.showEditModal.set(true);
   }
   closeEditModal() {
@@ -210,88 +212,95 @@ export class Profile implements OnInit {
     }
   }
 
+  // ---- الحفظ ----
+  // لو فيه طلب معلّق لنفس الحقل، ما نبعتش طلب تاني
+  private isPendingBlocked(field: ChangeableField): boolean {
+    return this.changesNeedApproval() && this.hasPendingFields().has(field);
+  }
+
   async onSave() {
     const target = this.profile();
     if (!target) return;
 
     this.isSaving.set(true);
+    let applied = 0;
+    let sent = 0;
+    const skipped: string[] = [];
 
     try {
+      const f = this.form.getRawValue();
+      const changes: FieldChange[] = [];
+
       if (this.canEditPersonalInfo()) {
-        let avatarPath = target.avatar_path;
-        if (this.removePhotoFlag) avatarPath = null;
-        else if (this.selectedFile)
-          avatarPath = await this.profileService.uploadAvatar(target.id, this.selectedFile);
+        changes.push({ field: 'full_name', oldValue: target.full_name, newValue: f.fullName.trim() });
 
-        await this.profileService.updateNameAndAvatar(
-          target.id,
-          this.form.value.fullName!,
-          avatarPath,
-        );
+        if (this.removePhotoFlag && target.avatar_path) {
+          changes.push({ field: 'avatar_url', oldValue: target.avatar_path, newValue: '' });
+        } else if (this.selectedFile && !this.isPendingBlocked('avatar_url')) {
+          const path = await this.profileService.uploadAvatar(
+            target.id,
+            this.selectedFile,
+            this.changesNeedApproval(),
+          );
+          changes.push({ field: 'avatar_url', oldValue: target.avatar_path, newValue: path });
+        } else if (this.selectedFile) {
+          skipped.push(FIELD_LABELS['avatar_url']);
+        }
+      }
 
-        // جديد: حفظ phone, DOB, personal email (محتاج employee_id)
-        const employeeId =
-          target.employee_id ?? (await this.profileService.ensureEmployeeRecord(target.id));
-        await this.profileService.updatePersonalDetails(
-          employeeId,
-          this.form.value.phone!,
-          this.form.value.birthDate!,
-          this.form.value.personalEmail!,
+      if (this.canEditContactDetails()) {
+        changes.push(
+          { field: 'phone', oldValue: target.phone, newValue: f.phone },
+          { field: 'birth_date', oldValue: target.birth_date, newValue: f.birthDate },
+          { field: 'personal_email', oldValue: target.personal_email, newValue: f.personalEmail },
         );
       }
 
       if (this.canEditSensitiveFields()) {
-        // جديد: لو مفيش صف employees، أنشئه الأول
-        const employeeId =
-          target.employee_id ?? (await this.profileService.ensureEmployeeRecord(target.id));
-
-        await this.handleFieldChange(
-          employeeId,
-          'job_title',
-          this.form.value.jobTitle!,
-          target.job_title,
-          target,
-        );
-        await this.handleFieldChange(
-          employeeId,
-          'department_id',
-          this.form.value.departmentId!,
-          target.department_id,
-          target,
-        );
-        await this.handleFieldChange(
-          employeeId,
-          'salary',
-          String(this.form.value.salary),
-          target.salary != null ? String(target.salary) : null,
-          target,
-        );
-        await this.handleFieldChange(
-          employeeId,
-          'hire_date',
-          this.form.value.hireDate!,
-          target.hire_date,
-          target,
+        changes.push(
+          { field: 'job_title', oldValue: target.job_title, newValue: f.jobTitle },
+          { field: 'department_id', oldValue: target.department_id, newValue: f.departmentId },
+          {
+            field: 'salary',
+            oldValue: target.salary != null ? String(target.salary) : null,
+            newValue: String(f.salary ?? ''),
+          },
+          { field: 'hire_date', oldValue: target.hire_date, newValue: f.hireDate },
         );
       }
 
-      const newEmail = this.form.value.email!;
-      if (newEmail !== target.email) {
-        if (this.canEditEmailDirectly()) {
-          await this.profileService.changeEmailDirectly(target.id, newEmail);
-        } else if (this.canRequestEmailChange()) {
-          await this.profileService.requestFieldChange(
-            target.employee_id,
-            target.id,
-            'email',
-            target.email,
-            newEmail,
-          );
-          this.toastService.success('تم إرسال طلب تعديل الإيميل، بانتظار موافقة الأونر');
+      if ((this.canEditEmailDirectly() || this.canRequestEmailChange()) && f.email) {
+        changes.push({ field: 'email', oldValue: target.email, newValue: f.email.trim() });
+      }
+
+      for (const c of changes) {
+        if ((c.oldValue ?? '') === c.newValue) continue;
+
+        if (c.field === 'email' && this.canEditEmailDirectly()) {
+          await this.profileService.changeEmailDirectly(target.id, c.newValue);
+          applied++;
+        } else if (this.changesNeedApproval()) {
+          if (this.isPendingBlocked(c.field)) {
+            skipped.push(FIELD_LABELS[c.field]);
+            continue;
+          }
+          await this.profileService.requestFieldChange(target.id, c.field, c.oldValue, c.newValue);
+          sent++;
+        } else {
+          await this.profileService.applyFieldDirectly(target.id, c.field, c.newValue);
+          applied++;
         }
       }
 
-      this.toastService.success('تم حفظ التعديلات بنجاح');
+      if (applied === 0 && sent === 0 && skipped.length === 0) {
+        this.toastService.success('لا توجد تغييرات للحفظ');
+      }
+      if (applied > 0) this.toastService.success('تم حفظ التعديلات بنجاح');
+      if (sent > 0) this.toastService.success(`تم إرسال ${sent} طلب تعديل، بانتظار موافقة الأونر`);
+      if (skipped.length > 0) {
+        this.toastService.error(`فيه طلب معلّق بالفعل لـ: ${skipped.join('، ')}`);
+      }
+
       await this.authService.refreshCurrentUser();
       await this.loadProfile(target.id);
       this.showEditModal.set(false);
@@ -299,34 +308,6 @@ export class Profile implements OnInit {
       this.toastService.error(err.message ?? 'حدث خطأ أثناء الحفظ');
     } finally {
       this.isSaving.set(false);
-    }
-  }
-
-  // تحديث التوقيع: employeeId بقت باراميتر بدل الاعتماد على target.employee_id
-  private async handleFieldChange(
-    employeeId: string,
-    field: ChangeableField,
-    newValue: string,
-    oldValue: string | null,
-    target: ProfileDetails,
-  ) {
-    if (newValue === (oldValue ?? '')) return;
-
-    if (!this.sensitiveFieldsNeedApproval()) {
-      await this.profileService.updateSensitiveFieldDirectly(
-        employeeId,
-        target.id,
-        field,
-        newValue,
-      );
-    } else {
-      await this.profileService.requestFieldChange(
-        employeeId,
-        target.id,
-        field,
-        oldValue,
-        newValue,
-      );
     }
   }
 }
